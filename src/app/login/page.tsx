@@ -1,6 +1,7 @@
 "use client"
 
-import { useActionState } from "react"
+import { useEffect, useActionState } from "react"
+import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,7 +17,14 @@ import Link from "next/link"
 import { authenticate } from "@/actions/login"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [state, formAction, pending] = useActionState(authenticate, undefined)
+
+  useEffect(() => {
+    if (state?.success) {
+      router.push("/tasks")
+    }
+  }, [state, router])
 
   return (
     <div className="mx-auto mt-12 max-w-sm">
