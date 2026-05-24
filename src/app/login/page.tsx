@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useActionState } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,17 +14,38 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import Link from "next/link"
-import { authenticate } from "@/actions/login"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [state, formAction, pending] = useActionState(authenticate, undefined)
+  const [error, setError] = useState("")
+  const [pending, setPending] = useState(false)
 
-  useEffect(() => {
-    if (state?.success) {
-      router.push("/tasks")
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setPending(true)
+    setError("")
+
+    const formData = new FormData(e.currentTarget)
+
+    try {
+      const result = await signIn("credentials", {
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError("Credenciales inválidas")
+      } else {
+        router.push("/tasks")
+        router.refresh()
+      }
+    } catch {
+      setError("Error al iniciar sesión")
+    } finally {
+      setPending(false)
     }
-  }, [state, router])
+  }
 
   return (
     <div className="mx-auto mt-12 max-w-sm">
@@ -34,7 +55,7 @@ export default function LoginPage() {
           <CardDescription>Elige cómo acceder a tu cuenta</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form action={formAction} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -56,9 +77,7 @@ export default function LoginPage() {
               />
             </div>
 
-            {state?.error && (
-              <p className="text-sm text-destructive">{state.error}</p>
-            )}
+            {error && <p className="text-sm text-destructive">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={pending}>
               {pending ? "Accediendo..." : "Acceder"}
