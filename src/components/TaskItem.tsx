@@ -2,6 +2,7 @@
 
 import { useTransition } from "react"
 import Link from "next/link"
+import { toast } from "sonner"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,14 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  completed: boolean
-  createdAt: Date
-}
+import type { Task } from "@/types/task"
 
 interface TaskItemProps {
   task: Task
@@ -30,14 +24,35 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
-  const [pending, startTransition] = useTransition()
+  const [togglePending, startToggle] = useTransition()
+  const [deletePending, startDelete] = useTransition()
+
+  function handleToggle() {
+    startToggle(async () => {
+      try {
+        await onToggle(task.id)
+      } catch {
+        toast.error("No se pudo actualizar la tarea")
+      }
+    })
+  }
+
+  function handleDelete() {
+    startDelete(async () => {
+      try {
+        await onDelete(task.id)
+      } catch {
+        toast.error("No se pudo eliminar la tarea")
+      }
+    })
+  }
 
   return (
     <div className="flex items-start gap-3 rounded-lg border p-4">
       <Checkbox
         checked={task.completed}
-        onCheckedChange={() => startTransition(() => onToggle(task.id))}
-        disabled={pending}
+        onCheckedChange={handleToggle}
+        disabled={togglePending || deletePending}
         className="mt-1"
       />
 
@@ -93,10 +108,10 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
                 </DialogClose>
                 <Button
                   variant="destructive"
-                  disabled={pending}
-                  onClick={() => startTransition(() => onDelete(task.id))}
+                  disabled={deletePending || togglePending}
+                  onClick={handleDelete}
                 >
-                  {pending ? "Eliminando..." : "Eliminar"}
+                  {deletePending ? "Eliminando..." : "Eliminar"}
                 </Button>
               </DialogFooter>
             </DialogContent>

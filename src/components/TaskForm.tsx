@@ -23,7 +23,7 @@ export default function TaskForm({ action, initialData }: TaskFormProps) {
   useEffect(() => {
     if (state?.success) {
       toast.success("Tarea guardada con éxito")
-      setTimeout(() => router.push("/tasks"), 1500)
+      router.push("/tasks")
     }
   }, [state, router])
 

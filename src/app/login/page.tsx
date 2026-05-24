@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +16,7 @@ import {
 import Link from "next/link"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [error, setError] = useState("")
   const [pending, setPending] = useState(false)
 
@@ -35,7 +37,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Credenciales inválidas")
       } else {
-        window.location.href = "/tasks"
+        router.push("/tasks")
       }
     } catch {
       setError("Error al iniciar sesión")

@@ -2,14 +2,7 @@
 
 import { useState } from "react"
 import TaskItem from "./TaskItem"
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  completed: boolean
-  createdAt: Date
-}
+import type { Task } from "@/types/task"
 
 interface TaskListProps {
   tasks: Task[]
