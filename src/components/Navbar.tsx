@@ -21,7 +21,7 @@ export default async function Navbar() {
               <form
                 action={async () => {
                   "use server"
-                  await signOut()
+                  await signOut({ redirectTo: "/login" })
                 }}
               >
                 <Button type="submit" variant="outline" size="sm">
