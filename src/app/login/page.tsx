@@ -37,6 +37,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Credenciales inválidas")
       } else {
+        router.refresh()
         router.push("/tasks")
       }
     } catch {
